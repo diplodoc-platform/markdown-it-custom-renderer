@@ -30,19 +30,19 @@ export enum CustomRendererMode {
     Development,
 }
 
-export type CustomRendererHooks = Record<string, RenderHook | RenderHook[]>;
+export type CustomRendererHooks = Record<string, CustomRendererHook | CustomRendererHook[]>;
 
-export interface RenderHook {
-    (parameters: RenderHookParameters): string;
+export interface CustomRendererHook {
+    (parameters: CustomRendererHookParameters): string;
 }
 
-export type RenderHookParameters = {tokens: Token[]; options: Options; env: unknown};
+export type CustomRendererHookParameters = {tokens: Token[]; options: Options; env: unknown};
 
 class CustomRenderer<State = {}> extends Renderer {
     protected mode: CustomRendererMode;
     protected handlers: Map<string, Renderer.RenderRule[]>;
     protected state: State;
-    protected hooks: Map<CustomRendererLifeCycle, RenderHook[]>;
+    protected hooks: Map<CustomRendererLifeCycle, CustomRendererHook[]>;
 
     constructor({
         mode = CustomRendererMode.Production,
@@ -60,7 +60,7 @@ class CustomRenderer<State = {}> extends Renderer {
         this.handlers = new Map<string, Renderer.RenderRule[]>();
         this.setHandlers({...handlers});
 
-        this.hooks = new Map<CustomRendererLifeCycle, RenderHook[]>();
+        this.hooks = new Map<CustomRendererLifeCycle, CustomRendererHook[]>();
         this.setHooks({...hooks});
     }
 
@@ -100,7 +100,7 @@ class CustomRenderer<State = {}> extends Renderer {
         }
     }
 
-    hook(cycle: CustomRendererLifeCycle, hook: RenderHook | RenderHook[]) {
+    hook(cycle: CustomRendererLifeCycle, hook: CustomRendererHook | CustomRendererHook[]) {
         const hooks = this.hooks.get(cycle) ?? [];
 
         const normalized = (Array.isArray(hook) ? hook : [hook]).map((h) => h.bind(this));
@@ -108,7 +108,7 @@ class CustomRenderer<State = {}> extends Renderer {
         this.hooks.set(cycle, [...hooks, ...normalized]);
     }
 
-    runHooks(cycle: CustomRendererLifeCycle, parameters: RenderHookParameters) {
+    runHooks(cycle: CustomRendererLifeCycle, parameters: CustomRendererHookParameters) {
         let rendered = '';
 
         const hooks = this.hooks.get(cycle) ?? [];
