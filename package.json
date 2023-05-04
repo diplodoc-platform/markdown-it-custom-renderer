@@ -24,7 +24,7 @@
     "test:watch": "jest --watch --verbose --silent=false",
     "build": "npm run build:clean && tsc -p tsconfig.types.json && node scripts/bundle.js",
     "build:clean": "rm -rf lib",
-    "build:dev": "node scripts/development.js",
+    "build:dev": "npm run build:dev:clean && node scripts/development.js",
     "build:dev:clean": "rm -rf dist"
   },
   "author": {
