@@ -25,7 +25,8 @@
     "build": "npm run build:clean && tsc -p tsconfig.types.json && node scripts/bundle.js",
     "build:clean": "rm -rf lib",
     "build:dev": "npm run build:dev:clean && node scripts/development.js",
-    "build:dev:clean": "rm -rf dist"
+    "build:dev:clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
   },
   "author": {
     "name": "moki",
