@@ -36,7 +36,13 @@ export interface CustomRendererHook {
     (parameters: CustomRendererHookParameters): string;
 }
 
-export type CustomRendererHookParameters = {tokens: Token[]; options: Options; env: unknown};
+export type CustomRendererHookParameters = {
+    tokens: Token[];
+    options: Options;
+    env: unknown;
+    // accumulates render artifacts inside the inline render
+    rendered?: string[];
+};
 
 class CustomRenderer<State = {}> extends Renderer {
     protected mode: CustomRendererMode;
@@ -108,18 +114,6 @@ class CustomRenderer<State = {}> extends Renderer {
         this.hooks.set(cycle, [...hooks, ...normalized]);
     }
 
-    runHooks(cycle: CustomRendererLifeCycle, parameters: CustomRendererHookParameters) {
-        let rendered = '';
-
-        const hooks = this.hooks.get(cycle) ?? [];
-
-        for (const hook of hooks) {
-            rendered += hook(parameters);
-        }
-
-        return rendered;
-    }
-
     render(tokens: Token[], options: Options, env: unknown) {
         let rendered = '';
 
@@ -151,22 +145,45 @@ class CustomRenderer<State = {}> extends Renderer {
     }
 
     renderInline(tokens: Token[], options: Options, env: unknown) {
-        let rendered = '';
+        const rendered: string[] = [];
 
         let len;
         let i;
 
-        const parameters = {tokens, options, env};
+        const parameters = {tokens, options, env, rendered};
 
-        rendered += this.runHooks(CustomRendererLifeCycle.BeforeInlineRender, parameters);
+        rendered.push(this.runHooks(CustomRendererLifeCycle.BeforeInlineRender, parameters));
 
         for (i = 0, len = tokens.length; i < len; i++) {
-            rendered += this.processToken(tokens, i, options, env);
+            rendered.push(this.processToken(tokens, i, options, env));
         }
 
-        rendered += this.runHooks(CustomRendererLifeCycle.AfterInlineRender, parameters);
+        rendered.push(this.runHooks(CustomRendererLifeCycle.AfterInlineRender, parameters));
 
-        return rendered;
+        return rendered.join('');
+    }
+
+    // renderInline provides rendered array
+    // we accumulate render results into it
+    // allowing us to access current render artifacts
+    // at the time each before/after inline render hook runs
+    runHooks(cycle: CustomRendererLifeCycle, parameters: CustomRendererHookParameters) {
+        const hooks = this.hooks.get(cycle) ?? [];
+
+        let rendered = '';
+        let result = '';
+
+        for (const hook of hooks) {
+            result = hook(parameters);
+
+            if (Array.isArray(parameters.rendered)) {
+                parameters.rendered.push(result);
+            } else {
+                rendered += result;
+            }
+        }
+
+        return Array.isArray(parameters.rendered) ? '' : rendered;
     }
 
     processToken(tokens: Token[], i: number, options: Options, env: unknown) {
