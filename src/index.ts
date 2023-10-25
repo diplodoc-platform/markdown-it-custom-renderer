@@ -1,13 +1,13 @@
 import {
     CustomRenderer,
-    customRenderer,
-    CustomRendererLifeCycle,
-    CustomRendererParams,
-    CustomRendererMode,
     CustomRendererHanlders,
-    CustomRendererHooks,
     CustomRendererHook,
     CustomRendererHookParameters,
+    CustomRendererHooks,
+    CustomRendererLifeCycle,
+    CustomRendererMode,
+    CustomRendererParams,
+    customRenderer,
 } from './custom-renderer';
 
 export {
