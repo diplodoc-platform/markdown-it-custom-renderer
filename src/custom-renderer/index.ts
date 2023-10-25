@@ -55,7 +55,7 @@ class CustomRenderer<State = {}> extends Renderer {
         handlers = {},
         hooks = {},
         rules = {},
-        initState = () => ({} as State),
+        initState = () => ({}) as State,
     }: CustomRendererParams<State>) {
         super();
 
@@ -217,6 +217,7 @@ function customRenderer(parser: MarkdownIt, parameters?: CustomRendererParams) {
     const renderer = new CustomRenderer(options);
 
     // @ts-ignore
+    // eslint-disable-next-line no-param-reassign
     parser.renderer = renderer;
 }
 
