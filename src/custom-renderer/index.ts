@@ -30,7 +30,7 @@ export enum CustomRendererMode {
     Development,
 }
 
-export type CustomRendererHooks = Record<string, CustomRendererHook | CustomRendererHook[]>;
+export type CustomRendererHooks = Partial<Record<keyof typeof CustomRendererLifeCycle, CustomRendererHook | CustomRendererHook[]>>;
 
 export interface CustomRendererHook {
     (parameters: CustomRendererHookParameters): string;
