@@ -44,6 +44,23 @@ export type CustomRendererHookParameters = {
     rendered?: string[];
 };
 
+type SourceMap = [number, number];
+
+function getMap(tokens: Token[], i: number) {
+    let depth = 0;
+    while (tokens[i]) {
+        const token = tokens[i--];
+
+        depth += token.nesting;
+
+        if (token.map && depth >= 0) {
+            return token.map;
+        }
+    }
+
+    return null;
+}
+
 class CustomRenderer<State = {}> extends Renderer {
     protected mode: CustomRendererMode;
     protected handlers: Map<string, Renderer.RenderRule[]>;
@@ -119,6 +136,7 @@ class CustomRenderer<State = {}> extends Renderer {
 
         let children;
         let type;
+        let map;
         let len;
         let i;
 
@@ -129,9 +147,10 @@ class CustomRenderer<State = {}> extends Renderer {
         for (i = 0, len = tokens.length; i < len; i++) {
             type = tokens[i].type;
             children = tokens[i].children;
+            map = getMap(tokens, i);
 
             if (type === 'inline' && Array.isArray(children)) {
-                rendered += this.renderInline(children, options, env);
+                rendered += this.renderInline(children, options, env, map);
 
                 continue;
             }
@@ -144,13 +163,14 @@ class CustomRenderer<State = {}> extends Renderer {
         return rendered;
     }
 
-    renderInline(tokens: Token[], options: Options, env: unknown) {
+    // @ts-ignore
+    renderInline(tokens: Token[], options: Options, env: unknown, map: SourceMap | null) {
         const rendered: string[] = [];
 
         let len;
         let i;
 
-        const parameters = {tokens, options, env, rendered};
+        const parameters = {tokens, options, env, rendered, map};
 
         rendered.push(this.runHooks(CustomRendererLifeCycle.BeforeInlineRender, parameters));
 
@@ -195,11 +215,13 @@ class CustomRenderer<State = {}> extends Renderer {
 
         if (handlers) {
             for (const handler of handlers) {
+                // @ts-ignore
                 rendered += handler(tokens, i, options, env, this);
             }
         }
 
         if (rule) {
+            // @ts-ignore
             rendered += rule(tokens, i, options, env, this);
         } else {
             rendered += this.renderToken(tokens, i, options);
