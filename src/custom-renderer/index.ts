@@ -166,15 +166,11 @@ class CustomRenderer<State = {}> extends Renderer {
     // @ts-ignore
     renderInline(tokens: Token[], options: Options, env: unknown, map: SourceMap | null) {
         const rendered: string[] = [];
-
-        let len;
-        let i;
-
         const parameters = {tokens, options, env, rendered, map};
 
         rendered.push(this.runHooks(CustomRendererLifeCycle.BeforeInlineRender, parameters));
 
-        for (i = 0, len = tokens.length; i < len; i++) {
+        for (let i = 0; i < tokens.length; i++) {
             rendered.push(this.processToken(tokens, i, options, env));
         }
 
