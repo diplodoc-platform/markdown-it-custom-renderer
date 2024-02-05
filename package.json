@@ -1,6 +1,6 @@
 {
   "name": "@diplodoc/markdown-it-custom-renderer",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "extendable custom renderer for markdown-it",
   "homepage": "https://github.com/diplodoc-platform/markdown-it-custom-renderer",
   "bugs": {
