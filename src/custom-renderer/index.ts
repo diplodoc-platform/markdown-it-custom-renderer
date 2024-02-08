@@ -40,6 +40,7 @@ export type CustomRendererHookParameters = {
     tokens: Token[];
     options: Options;
     env: unknown;
+    map?: [number, number] | null;
     // accumulates render artifacts inside the inline render
     rendered?: string[];
 };
@@ -62,9 +63,10 @@ function getMap(tokens: Token[], i: number) {
 }
 
 class CustomRenderer<State = {}> extends Renderer {
+    state: State;
+
     protected mode: CustomRendererMode;
     protected handlers: Map<string, Renderer.RenderRule[]>;
-    protected state: State;
     protected hooks: Map<CustomRendererLifeCycle, CustomRendererHook[]>;
 
     constructor({
